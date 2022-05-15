@@ -15,6 +15,12 @@ Publishers request logic is located in https://github.com/RobertWhip/GameAPI/blo
 $ docker-compose up
 ```
 
+## Database
+This API uses postgres DB. The database migrations are managed by Knex.
+```bash
+$ npm run migrate
+```
+
 # Nest.js README
 
 ## Description
