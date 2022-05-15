@@ -1,4 +1,4 @@
-FROM node:14-alpine3.12
+FROM node:18-alpine3.14
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -18,4 +18,5 @@ COPY . .
 
 EXPOSE 3000
 
+CMD ["npm", "run", "migrate"]
 CMD [ "npm", "run", "start" ]

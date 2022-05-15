@@ -1,13 +1,27 @@
+// External
 import { Injectable } from "@nestjs/common";
-const db = require('../components/db');
-const TABLE = 'publishers';
+
+// Internal
+import { DBService } from "../components/db.service";
 
 
 @Injectable()
 export class PublishersService {
+    private db;
+
+    constructor(
+        private readonly dbService: DBService
+    ) {
+        this.db = this.dbService.db();
+    }
+
+    getTableName() {
+        return 'publishers';
+    }
+
     async getStats(filters) {
-        const query = db()
-            .from(TABLE)
+        const query = this.db
+            .from(this.getTableName())
             .count()
             .first();
 
@@ -19,8 +33,8 @@ export class PublishersService {
     async getList(filters) {
         const { page, pageSize } = filters;
 
-        const query = db()
-            .from(TABLE)
+        const query = this.db
+            .from(this.getTableName())
             .select()
             .limit(pageSize)
             .offset((page - 1) * pageSize)
@@ -46,8 +60,8 @@ export class PublishersService {
     }
 
     async get(id) {
-        const query = db()
-            .from(TABLE)
+        const query = this.db
+            .from(this.getTableName())
             .select()
             .where('id', id)
             .first();
@@ -56,8 +70,8 @@ export class PublishersService {
     }
 
     async create(publisher) {
-        const [{ id }] = await db()
-            .table(TABLE)
+        const [{ id }] = await this.db
+            .table(this.getTableName())
             .insert(publisher)
             .returning('id');
 
@@ -65,8 +79,8 @@ export class PublishersService {
     }
 
     async update(id, publisher) {
-        const updated = await db()
-            .table(TABLE)
+        const updated = await this.db
+            .table(this.getTableName())
             .update(publisher)
             .where('id', id);
 
@@ -74,8 +88,8 @@ export class PublishersService {
     }
 
     async delete(id) {
-        const deleted = await db()
-            .table(TABLE)
+        const deleted = await this.db
+            .table(this.getTableName())
             .where('id', id)
             .delete();
 

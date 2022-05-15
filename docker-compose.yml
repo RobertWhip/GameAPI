@@ -5,6 +5,12 @@ services:
   # use the Dockerfile in the directory to configure it
   app:
     build: .
+    environment:
+      - DB_USER=root
+      - DB_PSWD=root
+      - DB_PORT=5432
+      - DB_HOST=gameapi_postgres_1
+      - DB_NAME=games_db
     depends_on:
       # Our app does not work without our database
       # so this ensures our database is loaded first
@@ -18,6 +24,7 @@ services:
       # node_modules workaround for volumes
       # https://stackoverflow.com/a/32785014
       - /usr/src/app/node_modules
+    command: sh -c "npm run migrate && npm run start"
 
   # This is the configuration for our PostgreSQL database container
   # Note the `postgres` name is important, in out Node app when we refer
@@ -42,14 +49,3 @@ services:
       # provided in the `docker-entrypoint-initdb.d` directory, this connects
       # our seed file to that directory so that it gets run
       - ./database-seed.sql:/docker-entrypoint-initdb.d/database-seed.sql
-
-  # PostgreSQL pgAdmin panel accessible at http://localhost:16543/
-  pgadmin-compose:
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: "placeholder@example.com"
-      PGADMIN_DEFAULT_PASSWORD: "fakepassword123!"
-    ports:
-      - "16543:80"
-    depends_on:
-      - postgres

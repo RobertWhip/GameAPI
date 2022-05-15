@@ -2,16 +2,27 @@
 import { Injectable } from "@nestjs/common";
 
 // Internal
-const db = require('../components/db');
-const PUBLISHERS_TABLE = 'publishers';
-const TABLE = 'games';
-
+import { PublishersService } from "../publishers/publishers.service";
+import { DBService } from "../components/db.service";
 
 @Injectable()
 export class GamesService {
+    private db;
+
+    constructor(
+        private readonly publishersService: PublishersService,
+        private readonly dbService: DBService
+    ){
+        this.db = this.dbService.db();
+    }
+
+    getTableName() {
+        return 'games';
+    }
+
     async getStats(filters) {
-        const query = db()
-            .from(TABLE)
+        const query = this.db
+            .from(this.getTableName())
             .count()
             .first();
 
@@ -23,14 +34,14 @@ export class GamesService {
     async getList(filters) {
         const { page, pageSize } = filters;
 
-        const query = db()
-            .from(TABLE)
+        const query = this.db
+            .from(this.getTableName())
             .select()
             .limit(pageSize)
             .offset((page - 1) * pageSize)
             .orderBy('id', 'desc');
 
-        this.applyFilters(query, filters)
+        this.applyFilters(query, filters);
 
         return query;
     }
@@ -56,8 +67,8 @@ export class GamesService {
     }
 
     async get(id) {
-        const query = db()
-            .from(TABLE)
+        const query = this.db
+            .from(this.getTableName())
             .select()
             .where('id', id)
             .first();
@@ -66,15 +77,15 @@ export class GamesService {
     }
 
     async getPublisherOfGame(id) {
-        const query = db()
-            .select(PUBLISHERS_TABLE+'.*') // select all fields from publishers table
-            .from(TABLE)
+        const query = this.db
+            .select(this.publishersService.getTableName()+'.*') // select all fields from publishers table
+            .from(this.getTableName())
             .leftJoin( // join publishers table on its id
-                PUBLISHERS_TABLE, 
-                PUBLISHERS_TABLE+'.id', 
+                this.publishersService.getTableName(), 
+                this.publishersService.getTableName()+'.id', 
                 'publisher_id'
             ) 
-            .where(TABLE+'.id', id) // find by id of a specific game
+            .where(this.getTableName()+'.id', id) // find by id of a specific game
             .first();
 
         return query;
@@ -89,8 +100,8 @@ export class GamesService {
             releaseDate
         } = game;
 
-        const [{ id }] = await db()
-            .table(TABLE)
+        const [{ id }] = await this.db
+            .table(this.getTableName())
             .insert({
                 title: title,
                 price: price,
@@ -112,8 +123,8 @@ export class GamesService {
             releaseDate
         } = game;
 
-        const updated = await db()
-            .table(TABLE)
+        const updated = await this.db
+            .table(this.getTableName())
             .update({
                 title: title,
                 price: price,
@@ -127,8 +138,8 @@ export class GamesService {
     }
 
     async delete(id) {
-        const deleted = await db()
-            .table(TABLE)
+        const deleted = await this.db
+            .table(this.getTableName())
             .where('id', id)
             .delete();
             
@@ -139,10 +150,10 @@ export class GamesService {
     /* Trigger a process which will automatically remove the games having a release date older than 18
     months and apply a discount of 20% to all games having a release date between 12 and 18 months */
     async triggerDiscountProcedure() {
-        return await db().transaction(async trx => {
+        return await this.db.transaction(async trx => {
             // Delete games where the sum of years*12 and months between 'now' and release date is more than 18
             const deleted = await trx()
-                .from(TABLE)
+                .from(this.getTableName())
                 .delete()
                 .whereRaw(`
                     extract(year from age(now(), release_date)) * 12 + 
@@ -152,9 +163,9 @@ export class GamesService {
 
             // Delete games where the sum of years*12 and months between 'now' and release date is more than 12
             const updated = await trx()
-                .table(TABLE)
+                .table(this.getTableName())
                 .update({
-                    price: db().raw('price * 0.8') // 20% off
+                    price: this.db.raw('price * 0.8') // 20% off
                 })
                 .whereRaw(`
                     extract(year from age(now(), release_date)) * 12 + 

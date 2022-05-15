@@ -13,7 +13,7 @@ create, update and delete a game. */
 export class GamesController {
     constructor(
         private readonly gamesService: GamesService,
-        private readonly errors: ErrorService,
+        private readonly errors: ErrorService
     ) {}
 
     @Get()
@@ -45,6 +45,7 @@ export class GamesController {
         const game = await this.gamesService.get(id);
         return game ? game : this.errors.notFound();
     }
+
     /* Fetch only the publisher data for a given game (without any publishers dedicated API – i.e. only by
     using the game API) */
     @Get(':id/publisher')
@@ -52,7 +53,6 @@ export class GamesController {
         const publisher = await this.gamesService.getPublisherOfGame(id);
         return publisher ? publisher : this.errors.notFound();
     }
-
 
     @Post()
     async create(@Body() game: GameDto) {

@@ -1,12 +1,13 @@
+require('dotenv').config({ path: '../.env' })
 
 module.exports = {
   client: 'postgresql',
   connection: {
-    host: '127.0.0.1',
-    port: '5432',
-    database: 'games_db',
-    user: 'root',
-    password: 'root',
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PSWD
   },
   migrations: {
     directory: `${__dirname}/../migrations`,

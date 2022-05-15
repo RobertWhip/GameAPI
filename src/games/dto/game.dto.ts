@@ -1,7 +1,7 @@
 export class GameDto {
     readonly title: string;
     readonly price: number;
-    readonly publisher: number;
+    readonly publisherId: number;
     readonly tags: string[];
     
     // ISO 8601 Extended format
