@@ -7,9 +7,13 @@ using the game API)
 months and apply a discount of 20% to all games having a release date between 12 and 18 months.
 
 Games request logic is located in https://github.com/RobertWhip/GameAPI/blob/master/src/games/games.module.ts.
+
 Publishers request logic is located in https://github.com/RobertWhip/GameAPI/blob/master/src/publishers/publishers.module.ts.
 
-## 
+## Start in Docker
+```bash
+$ docker-compose up
+```
 
 # Nest.js README
 
