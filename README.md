@@ -6,7 +6,8 @@ using the game API)
 - To trigger a process which will automatically remove the games having a release date older than 18
 months and apply a discount of 20% to all games having a release date between 12 and 18 months.
 
-Games request logics are located in  
+Games request logic is located in https://github.com/RobertWhip/GameAPI/blob/master/src/games/games.module.ts.
+Publishers request logic is located in https://github.com/RobertWhip/GameAPI/blob/master/src/publishers/publishers.module.ts.
 
 ## 
 
